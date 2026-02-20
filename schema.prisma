@@ -70,13 +70,15 @@ model Session {
 }
 
 model Category {
-  id            String   @id @default(cuid())
-  name          String   @unique
-  defaultMinLow Int
+  id             String   @id @default(cuid())
+  name           String   @unique
+  defaultMinLow  Int
   defaultMinHigh Int
-  active        Boolean  @default(true)
-  createdAt     DateTime @default(now())
-} events        AiEvent[]
+  active         Boolean  @default(true)
+  createdAt      DateTime @default(now())
+
+  events         AiEvent[]
+}
 
 model ApprovedTool {
   id        String   @id @default(cuid())

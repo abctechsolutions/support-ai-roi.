@@ -76,7 +76,7 @@ model Category {
   defaultMinHigh Int
   active        Boolean  @default(true)
   createdAt     DateTime @default(now())
-}events        AiEvent[]
+} events        AiEvent[]
 
 model ApprovedTool {
   id        String   @id @default(cuid())

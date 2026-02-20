@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  USER
+}
+
+enum Tool {
+  CHATGPT
+  CLAUDE
+  COPILOT
+  GEMINI
+  OTHER
+}
+
+enum TimeSavedBucket {
+  M1_2
+  M3_5
+  M6_10
+  M11_20
+  M20_PLUS
+}
+
+enum ReworkLevel {
+  NONE
+  SOME
+  HEAVY
+}
+
+enum Outcome {
+  SENT_TO_CUSTOMER
+  INTERNAL_ONLY
+  ESCALATED
+}
+
+model Team {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  users     User[]
+  createdAt DateTime @default(now())
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  role         Role      @default(USER)
+  teamId       String?
+  team         Team?     @relation(fields: [teamId], references: [id])
+  sessions     Session[]
+  events       AiEvent[]
+  createdAt    DateTime  @default(now())
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Category {
+  id            String   @id @default(cuid())
+  name          String   @unique
+  defaultMinLow Int
+  defaultMinHigh Int
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+}
+
+model ApprovedTool {
+  id        String   @id @default(cuid())
+  tool      Tool     @unique
+  approved  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AiEvent {
+  id           String          @id @default(cuid())
+  createdAt    DateTime        @default(now())
+  userId       String
+  user         User            @relation(fields: [userId], references: [id])
+
+  tool         Tool
+  categoryId   String
+  category     Category        @relation(fields: [categoryId], references: [id])
+
+  timeSaved    TimeSavedBucket
+  rework       ReworkLevel
+  outcome      Outcome
+
+  riskPersonal Boolean         @default(false)
+  riskPayment  Boolean         @default(false)
+  riskInternal Boolean         @default(false)
+  toolApproved Boolean         @default(true)
+
+  note         String?
+}
